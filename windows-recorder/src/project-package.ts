@@ -16,3 +16,16 @@ export async function packProject(document:EditDocument,media:Blob,name:string,d
  const length=new Uint8Array(4);new DataView(length.buffer).setUint32(0,json.length);
  return new Blob([MAGIC,length,json,media],{type:'application/x-frameflow-project'});
 }
+export async function unpackProject(file:Blob):Promise<ProjectPackage>{
+ const prefixSize=MAGIC.length+4;
+ if(file.size<prefixSize||file.size>MAX_MEDIA+MAX_HEADER+prefixSize)throw new Error('Invalid package size.');
+ const prefix=new Uint8Array(await file.slice(0,prefixSize).arrayBuffer());if(!MAGIC.every((value,index)=>prefix[index]===value))throw new Error('This is not a Frameflow project package.');
+ const length=new DataView(prefix.buffer).getUint32(MAGIC.length);
+ if(length<2||length>MAX_HEADER||prefixSize+length>=file.size)throw new Error('Invalid package manifest length.');
+ let manifest:Manifest;try{manifest=JSON.parse(await file.slice(prefixSize,prefixSize+length).text())}catch{throw new Error('Package manifest is damaged.');}
+ if(!manifest||manifest.format!=='frameflow-project'||manifest.version!==1)throw new Error('Unsupported project package version.');validateMedia(manifest.media);
+ const document=validateDocument(manifest.document,manifest.document?.mediaId,manifest.media.duration);
+ const media=file.slice(prefixSize+length,file.size,manifest.media.mimeType);
+ if(media.size!==manifest.media.size||await hash(media)!==manifest.media.sha256)throw new Error('Package media is incomplete or damaged.');
+ return {document,media,name:manifest.media.name,duration:manifest.media.duration};
+}
