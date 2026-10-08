@@ -8,3 +8,10 @@ test('split preserves source frames and scaled duration',()=>{
  assert.equal(locate(result,2).segment.id,'second');assert.equal(locate(result,3).sourceTime,6);assert.equal(locate(result,6),null);
  assert.throws(()=>split(result,'second',4,'third'),/inside/);
 });
+test('history restores edits without mutating earlier snapshots',()=>{
+ const history=new EditHistory();const original=createDocument('m','A',10);history.record(original);
+ const edited=structuredClone(original);edited.segments[0].sourceIn=3;
+ const previous=history.undo(edited);assert.equal(previous.segments[0].sourceIn,0);
+ assert.equal(history.redo(previous).segments[0].sourceIn,3);
+ history.record(edited);assert.equal(history.canRedo,false);
+});
