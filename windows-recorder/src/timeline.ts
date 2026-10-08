@@ -42,3 +42,6 @@ export function validateDocument(value:unknown,mediaId:string,duration:number):E
   if(d.camera!==undefined){if(!Array.isArray(d.camera)||d.camera.length>10000)throw new Error('Invalid camera keyframes.');const times=new Set<number>();for(const f of d.camera){if(!f||![f.time,f.x,f.y,f.zoom].every(Number.isFinite)||f.time<0||times.has(f.time)||f.x<0||f.x>1||f.y<0||f.y>1||f.zoom<1||f.zoom>5||!['linear','smooth'].includes(f.easing))throw new Error('Invalid camera keyframe.');times.add(f.time);}}
   return structuredClone(d);
 }
+export function createDocument(mediaId:string,name:string,duration:number):EditDocument {
+  return {version:1,mediaId,name,segments:duration>0?[{id:crypto.randomUUID(),sourceIn:0,sourceOut:duration,speed:1,volume:1,opacity:1}]:[],appearance:{background:'#6965ca',padding:0.06,radius:18,width:1280,height:720}};
+}
