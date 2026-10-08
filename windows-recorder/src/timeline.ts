@@ -6,3 +6,8 @@ export type Annotation={id:string;kind:'text'|'rectangle'|'circle'|'arrow'|'line
 export type EditDocument = {version:1; mediaId:string; name:string; segments:Segment[]; appearance:Appearance; annotations?:Annotation[]; camera?:CameraKeyframe[]};
 export const segmentDuration = (s:Segment) => (s.sourceOut-s.sourceIn)/s.speed;
 export const timelineDuration = (segments:Segment[]) => segments.reduce((sum,s)=>sum+segmentDuration(s),0);
+export function locate(segments:Segment[],time:number) {
+  let start=0;
+  for(const segment of segments){const end=start+segmentDuration(segment);if(time>=start&&time<end)return {segment,start,sourceTime:segment.freeze??segment.sourceIn+(time-start)*segment.speed};start=end;}
+  return null;
+}
