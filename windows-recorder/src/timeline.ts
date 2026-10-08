@@ -4,3 +4,4 @@ export type Appearance = {background:string; padding:number; radius:number; widt
 import type {CameraKeyframe} from './camera';
 export type Annotation={id:string;kind:'text'|'rectangle'|'circle'|'arrow'|'line'|'highlight'|'blur'|'pixelate';text:string;color:string;x:number;y:number;width:number;height:number;start:number;end:number};
 export type EditDocument = {version:1; mediaId:string; name:string; segments:Segment[]; appearance:Appearance; annotations?:Annotation[]; camera?:CameraKeyframe[]};
+export const segmentDuration = (s:Segment) => (s.sourceOut-s.sourceIn)/s.speed;
