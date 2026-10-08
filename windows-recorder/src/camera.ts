@@ -1,0 +1,1 @@
+export type CameraKeyframe={time:number;x:number;y:number;zoom:number;easing:'linear'|'smooth'};
