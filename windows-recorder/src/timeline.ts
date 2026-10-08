@@ -11,3 +11,13 @@ export function locate(segments:Segment[],time:number) {
   for(const segment of segments){const end=start+segmentDuration(segment);if(time>=start&&time<end)return {segment,start,sourceTime:segment.freeze??segment.sourceIn+(time-start)*segment.speed};start=end;}
   return null;
 }
+export function split(segments:Segment[],id:string,offset:number,newId:string):Segment[] {
+  return segments.flatMap(s=>{
+    if(s.id!==id)return [s];
+    if(!Number.isFinite(offset)||offset<=0||offset>=segmentDuration(s))throw new Error('Split must be inside the clip.');
+    const cut=s.sourceIn+offset*s.speed;
+    const left={...s,sourceOut:cut},right={...s,id:newId,sourceIn:cut};
+    if(s.fadeIn||s.fadeOut){const range=s.effectRange??{offset:0,duration:segmentDuration(s)};left.effectRange={...range};right.effectRange={offset:range.offset+offset,duration:range.duration};}
+    return [left,right];
+  });
+}
