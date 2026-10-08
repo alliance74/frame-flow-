@@ -45,3 +45,12 @@ export function validateDocument(value:unknown,mediaId:string,duration:number):E
 export function createDocument(mediaId:string,name:string,duration:number):EditDocument {
   return {version:1,mediaId,name,segments:duration>0?[{id:crypto.randomUUID(),sourceIn:0,sourceOut:duration,speed:1,volume:1,opacity:1}]:[],appearance:{background:'#6965ca',padding:0.06,radius:18,width:1280,height:720}};
 }
+export class EditHistory {
+  private past:EditDocument[]=[];
+  private future:EditDocument[]=[];
+  record(current:EditDocument){this.past.push(structuredClone(current));if(this.past.length>100)this.past.shift();this.future=[];}
+  undo(current:EditDocument){const previous=this.past.pop();if(previous)this.future.push(structuredClone(current));return previous??current;}
+  redo(current:EditDocument){const next=this.future.pop();if(next)this.past.push(structuredClone(current));return next??current;}
+  get canUndo(){return this.past.length>0;}
+  get canRedo(){return this.future.length>0;}
+}
