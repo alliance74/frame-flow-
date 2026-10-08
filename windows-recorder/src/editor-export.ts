@@ -10,3 +10,13 @@ function waitFor(video:HTMLVideoElement,event:string,signal:AbortSignal,action:(
   if(signal.aborted){aborted();return;}try{action()}catch(e){finish(e)}
  });
 }
+function presentedFrame(video:HTMLVideoElement,signal:AbortSignal):Promise<void>{
+ return new Promise((resolve,reject)=>{
+  let callback=0;const cleanup=()=>{clearTimeout(timeout);video.cancelVideoFrameCallback(callback);signal.removeEventListener('abort',abort)};
+  const abort=()=>{cleanup();reject(new DOMException('Export cancelled.','AbortError'))};
+  const timeout=setTimeout(()=>{cleanup();reject(new Error('No decoded video frame was presented.'))},15000);
+  signal.addEventListener('abort',abort,{once:true});if(signal.aborted){abort();return;}
+  callback=video.requestVideoFrameCallback(()=>{cleanup();resolve()});
+  void video.play().catch(error=>{cleanup();reject(error)});
+ });
+}
