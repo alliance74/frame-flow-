@@ -13,3 +13,11 @@ test('repeated imports remap identity and commit media and edits together',async
  const changed=structuredClone(first.editDocument);changed.name='Changed';await recordingStore.saveEdit(changed);assert.equal((await recordingStore.get(first.id)).editDocument.name,'Changed');assert.equal(await (await recordingStore.get(first.id)).blob.text(),'bytes');
  await recordingStore.delete(first.id);assert.equal(await recordingStore.get(first.id),undefined);await recordingStore.delete(second.id);
 });
+test('rejects truncation, corrupt bytes, forged header, unsupported media',async()=>{
+ const d=createDocument('m','Demo',10),media=new Blob(['original-media'],{type:'video/mp4'}),packed=await packProject(d,media,'demo.mp4',10);
+ await assert.rejects(unpackProject(packed.slice(0,packed.size-1)),/incomplete|damaged/);
+ const bytes=new Uint8Array(await packed.arrayBuffer());bytes[bytes.length-1]^=255;await assert.rejects(unpackProject(new Blob([bytes])),/damaged/);
+ bytes[0]=0;await assert.rejects(unpackProject(new Blob([bytes])),/not a Frameflow/);
+ await assert.rejects(packProject(d,new Blob(['x'],{type:'text/html'}),'attack.html',10),/metadata/);
+ const bad=structuredClone(d);bad.segments[0].sourceOut=11;await assert.rejects(packProject(bad,media,'demo.mp4',10),/clip/);
+});
