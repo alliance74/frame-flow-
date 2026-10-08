@@ -4,3 +4,4 @@ export function fadeEnvelope(segment:Segment,localTime:number){
  const fadeIn=segment.fadeIn??0,fadeOut=segment.fadeOut??0;
  return Math.min(1,fadeIn>0?t/fadeIn:1,fadeOut>0?(duration-t)/fadeOut:1);
 }
+export function segmentStart(segments:Segment[],id:string){let start=0;for(const segment of segments){if(segment.id===id)return start;start+=segmentDuration(segment);}return 0;}
