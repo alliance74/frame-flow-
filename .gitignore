@@ -1,0 +1,10 @@
+**/node_modules/
+**/dist/
+**/target/
+*.tsbuildinfo
+*.log
+*.tgz
+.env
+.env.*
+!.env.example
+.tools/
