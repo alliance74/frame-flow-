@@ -6,3 +6,4 @@ const frames=[];for(let frame=0;frame<60;frame++){const rgb=Buffer.alloc(320*180
 await new Promise((resolve,reject)=>{const ffmpeg=spawn(process.env.FRAMEFLOW_FFMPEG??'ffmpeg',['-y','-f','rawvideo','-pix_fmt','rgb24','-s','320x180','-r','30','-i','pipe:0','-f','lavfi','-i','sine=frequency=440:sample_rate=48000','-t','2','-c:v','libx264','-pix_fmt','yuv420p','-c:a','aac','-strict','experimental','-b:a','128k','-movflags','+faststart',fixturePath],{windowsHide:true,stdio:['pipe','ignore','pipe']});let stderr='';ffmpeg.stderr.on('data',data=>stderr+=data);ffmpeg.on('error',reject);ffmpeg.on('close',code=>code===0?resolve():reject(new Error(stderr)));ffmpeg.stdin.on('error',reject);ffmpeg.stdin.end(Buffer.concat(frames));});
 const fixtureBytes=await readFile(fixturePath);
 const {chromium}=await import(process.env.FRAMEFLOW_PLAYWRIGHT_MODULE??'playwright');
+const browser=await chromium.launch({channel:'msedge',headless:true});
