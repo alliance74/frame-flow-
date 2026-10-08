@@ -13,3 +13,9 @@ export async function loadEdit(mediaId:string,duration:number,recovery=false):Pr
   const json=localStorage.getItem('frameflow-edit-'+mediaId);
   return json===null?null:validateDocument(JSON.parse(json),mediaId,duration);
 }
+export async function saveEdit(document:EditDocument) {
+  await recordingStore.saveEdit(document);
+  localStorage.setItem('frameflow-edit-'+document.mediaId,JSON.stringify(document));
+  if(isTauri()){const snapshot=structuredClone(document);pending=pending.catch(()=>{}).then(()=>invoke<void>('save_edit_document',{document:snapshot}));await pending;}
+}
+
