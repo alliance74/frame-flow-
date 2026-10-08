@@ -10,3 +10,13 @@ function database() {
     request.onblocked = () => { connection = undefined; reject(new Error('Close other Frameflow windows to open local storage.')); };
   });
 }
+async function transaction<T>(mode: IDBTransactionMode, operation:(store:IDBObjectStore)=>IDBRequest<T>):Promise<T> {
+  const db = await database();
+  return new Promise((resolve,reject) => {
+    const tx = db.transaction('recordings',mode);
+    const request = operation(tx.objectStore('recordings'));
+    tx.oncomplete = () => resolve(request.result);
+    tx.onabort = () => reject(tx.error ?? request.error ?? new Error('Local storage transaction failed.'));
+    tx.onerror = () => reject(tx.error ?? request.error);
+  });
+}
