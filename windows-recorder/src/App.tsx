@@ -9,3 +9,4 @@ import {recordingStore} from './recording-store';
 import {useEffect,useRef,useState} from 'react';
 import {Monitor,Video,Square,Pause,Play,Download,FolderOpen,Scissors,MousePointer2,Settings,Mic,Camera,Image,Cloud,RotateCcw,Plus,Save} from 'lucide-react';
 type Clip={id:string;name:string;url:string;blob:Blob;duration:number;createdAt:string};
+const uid=()=>crypto.randomUUID();
