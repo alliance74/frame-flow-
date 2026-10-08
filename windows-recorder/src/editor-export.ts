@@ -74,3 +74,6 @@ export async function exportEdit(document:EditDocument,url:string,signal:AbortSi
   video.pause();if(recorder&&recorder.state!=='inactive')recorder.stop();output?.getTracks().forEach(t=>t.stop());await context?.close();video.removeAttribute('src');video.load();video.remove();
  }
 }
+function documentCreateVideo(){const video=document.createElement('video');video.preload='auto';video.playsInline=true;Object.assign(video.style,{position:'fixed',width:'1px',height:'1px',left:'0',bottom:'0',pointerEvents:'none'});document.body.append(video);return video;}
+
+
